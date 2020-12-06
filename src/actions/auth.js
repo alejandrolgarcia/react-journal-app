@@ -1,16 +1,45 @@
+import Swal from 'sweetalert2';
+
 import{ firebase, googleAuthProvider } from '../firebase/firebase-config';
 import { types } from '../types/types';
+import { finishLoading, startLoading } from './ui';
 
 export const startLoginEmailPassword = ( email, password ) => {
     return ( dispatch ) => {
 
-        setTimeout(() => {
+        dispatch( startLoading() );
 
-            dispatch( login( 123456 , 'Armando'  ) );
-            
-        }, 3500);
+        firebase.auth().signInWithEmailAndPassword( email, password )
 
+            .then( ({ user }) => {
+                dispatch( finishLoading() );
+                dispatch( login( user.uid , user.displayName  ) );
+            })
+            .catch( e => {
+                console.log( e );
+                dispatch( finishLoading() );
+                Swal.fire('Error', e.message, 'error');
+            });
     }
+}
+
+export const startRegisterWithEmailPasswordName = ( email, password, name) => {
+
+    return ( dispatch ) => {
+        firebase.auth().createUserWithEmailAndPassword( email, password )
+            .then( async({ user }) => {
+
+                // agregar updateProfile para actualizar el displayName que es null por defecto
+                await user.updateProfile({ displayName: name });
+
+                dispatch( login(user.uid, user.displayName ) );
+            })
+            .catch( e => {
+                console.log( e );
+                Swal.fire('Error', e.message, 'error');
+            });
+    }
+
 }
 
 export const startGoogleLogin = () => {
@@ -33,3 +62,15 @@ export const login = ( uid, displayName ) => {
     }
 
 }
+
+export const startLogout = () => {
+    return async( dispatch ) => {
+        await firebase.auth().signOut();
+
+        dispatch( logout() );
+    }
+}
+
+const logout = () => ({
+    type: types.logout
+});
