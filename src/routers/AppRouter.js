@@ -12,36 +12,39 @@ import { useDispatch } from 'react-redux';
 import { login } from '../actions/auth';
 import { PublicRoute } from './PublicRoute';
 import { PrivateRoute } from './PrivateRoute';
+import { startLoadingNotes } from '../actions/notes';
 
 export const AppRouter = () => {
 
     const dispatch = useDispatch();
 
-    const [ checking, setChecking ] = useState( true );
-    const [ isLoggedIn, setIsLoggedIn ] = useState( false );
+    const [checking, setChecking] = useState(true);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     // Callback que esta pendiente de un cambio en la autenticación.
     // El observable esta siempre pendiente del cambio en la autentiación.
     useEffect(() => {
 
-        firebase.auth().onAuthStateChanged( ( user ) => {
+        firebase.auth().onAuthStateChanged(async(user) => {
             
-            if ( user?.uid ) {
-                dispatch( login( user.uid, user.displayName ) );
-                setIsLoggedIn( true );
+            if (user?.uid) {
+                dispatch(login(user.uid, user.displayName));
+                setIsLoggedIn(true);
+                // Cuando la App se carga por primera vez obtener todos los notes.
+                dispatch(startLoadingNotes(user.uid));
             } else {
                 setIsLoggedIn( false );
             }
 
-            setChecking( false );
+            setChecking(false);
         });
 
-    }, [ dispatch, setChecking, setIsLoggedIn ])
+    }, [dispatch, setChecking, setIsLoggedIn]);
 
-    if( checking ) {
+    if(checking) {
         return(
-            <div class="loading show">
-                <div class="spin"></div>
+            <div className="loading show">
+                <div className="spin"></div>
             </div>
         );
     }
