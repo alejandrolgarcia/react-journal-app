@@ -47,6 +47,7 @@
     border-radius: 4px;
     color: $dark-grey;
     display: flex;
+    justify-content: space-between;
     margin-bottom: 10px;
     overflow: hidden;
 }
@@ -70,7 +71,7 @@
 }
 
 .journal__entry-date-box {
-    align-items: center;
+    align-items: right;
     display: flex;
     flex-direction: column;
     justify-content: center;
